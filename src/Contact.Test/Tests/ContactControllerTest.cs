@@ -183,7 +183,7 @@ namespace Contacts.Test.Tests
             var result = controller.Create(contact);
 
             // Assert
-            Assert.IsType<NoContentResult>(result);
+            Assert.IsType<CreatedResult>(result);
         }
 
         [Fact]

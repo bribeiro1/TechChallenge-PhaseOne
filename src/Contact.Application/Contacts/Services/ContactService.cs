@@ -47,54 +47,59 @@ public class ContactService
 
     private void EnsureValidation(ContactVO vo)
     {
+        string mensagemErro = string.Empty;
+
         //CHECK IF REQUIRED DATA IS FILLED
 
         var nameIsEmpty = string.IsNullOrWhiteSpace(vo.Name);
         if (nameIsEmpty)
-            throw new ArgumentException("Name shouldn't be empty!");
+            mensagemErro = "Name shouldn't be empty! \n";
 
         var phoneDDDIsEmpty = string.IsNullOrWhiteSpace(vo.PhoneDDD);
         if (phoneDDDIsEmpty)
-            throw new ArgumentException("Phone DDD shouldn't be empty!");
+            mensagemErro += "Phone DDD shouldn't be empty! \n";
 
         var phoneNumberIsEmpty = string.IsNullOrWhiteSpace(vo.PhoneNumber);
         if (phoneNumberIsEmpty)
-            throw new ArgumentException("Phone Number shouldn't be empty!");
+            mensagemErro += "Phone Number shouldn't be empty! \n";
 
         var phoneNumberContainsOnlyNumbers = vo.PhoneNumber.All(r => char.IsNumber(r));
         if (!phoneNumberContainsOnlyNumbers)
-            throw new ArgumentException("Phone Number should have only numbers!");
+            mensagemErro += "Phone Number should have only numbers! \n";
 
         var emailIsEmpty = string.IsNullOrWhiteSpace(vo.EmailAddress);
         if (emailIsEmpty)
-            throw new ArgumentException("Email Address shouldn't be empty!");
+            mensagemErro += "Email Address shouldn't be empty! \n";
 
         //CHECK IF DATA IS VALID
 
         var phoneDDDIsInvalid = !StringUtils.ValidatePhoneDDD(vo.PhoneDDD);
         if (phoneDDDIsInvalid)
-            throw new ArgumentException("Phone DDD is invalid!");
+            mensagemErro += "Phone DDD is invalid! \n";
 
         var phoneNumberIsInvalid = !StringUtils.ValidatePhoneNumber(vo.PhoneNumber);
         if (phoneNumberIsInvalid)
-            throw new ArgumentException("Phone Number is invalid!");
+            mensagemErro += "Phone Number is invalid! \n";
 
         var emailIsInvalid = !StringUtils.ValidateEmailAddress(vo.EmailAddress);
         if (emailIsInvalid)
-            throw new ArgumentException("Email Address is invalid!");
+            mensagemErro += "Email Address is invalid! \n";
 
         //CHECK IF DATA IS ALREADY IN USE
 
         var nameAlreadyInUse = Repository.ContactNameAlreadyExists(vo.Name, vo.Id);
         if (nameAlreadyInUse)
-            throw new ArgumentException("Name already in use!");
+            mensagemErro += "Name already in use! \n";
 
         var phoneAlreadyInUse = Repository.ContactPhoneAlreadyExists(vo.PhoneDDD, vo.PhoneNumber, vo.Id);
         if (phoneAlreadyInUse)
-            throw new ArgumentException("Phone already in use!");
+            mensagemErro += "Phone already in use! \n";
 
         var emailAlreadyInUse = Repository.ContactEmailAlreadyExists(vo.EmailAddress, vo.Id);
         if (emailAlreadyInUse)
-            throw new ArgumentException("Email already in use!");
+            mensagemErro += "Email already in use! \n";
+
+        if (!string.IsNullOrEmpty(mensagemErro))
+            throw new ArgumentException(mensagemErro);
     }
 }
