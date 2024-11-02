@@ -1,8 +1,8 @@
 ﻿using Contacts.Infrastructure.Models;
 
 namespace Contacts.Infrastructure.Repositories;
-public interface IRepositoryBase<TEntity>
-    where TEntity : EntityBase
+
+public interface IRepositoryBase<TEntity> where TEntity : EntityBase
 {
     IQueryable<TEntity> Query(bool tracking = true);
     TEntity GetById(Guid id, bool tracking = false);

@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Contacts.Api.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/contacts")]
     public class ContactController : ControllerBase
     {
         private readonly IContactService _contactService;
@@ -16,25 +16,11 @@ namespace Contacts.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IList<ContactVO>> List()
+        public ActionResult<IList<ContactVO>> List([FromQuery] string ddd = null)
         {
             try
             {
-                var result = _contactService.List();
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
-
-        [HttpGet("ByDDD/{ddd}")]
-        public ActionResult<IList<ContactVO>> ListByDDD(string ddd)
-        {
-            try
-            {
-                var result = _contactService.ListByDDD(ddd);
+                var result = _contactService.List(ddd);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -49,7 +35,7 @@ namespace Contacts.Api.Controllers
             try
             {
                 _contactService.Create(contact);
-                return NoContent();
+                return Created();
             }
             catch (Exception ex)
             {

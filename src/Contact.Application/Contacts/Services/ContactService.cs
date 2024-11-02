@@ -1,9 +1,9 @@
-﻿using Contacts.Domain.Contacts.Models;
+﻿using Contacts.Application.Utils;
+using Contacts.Domain.Contacts.Models;
 using Contacts.Domain.Contacts.Repositories;
 using Contacts.Domain.Contacts.Services;
 using Contacts.Domain.Contacts.VOs;
 using Contacts.Infrastructure.Services;
-using System.Text.RegularExpressions;
 
 namespace Contacts.Application.Contacts.Services;
 
@@ -15,15 +15,10 @@ public class ContactService
     {
     }
 
-    public IList<ContactVO> List()
+    public IList<ContactVO> List(string ddd)
     {
         return Repository.Query(tracking: false)
-            .Select(ContactVO.Cast).ToList();
-    }
-
-    public IList<ContactVO> ListByDDD(string ddd)
-    {
-        return Repository.Query(tracking: false).Where(r => r.Phone.DDD == ddd)
+            .Where(r => string.IsNullOrEmpty(ddd) || r.Phone.DDD == ddd)
             .Select(ContactVO.Cast).ToList();
     }
 
@@ -76,15 +71,15 @@ public class ContactService
 
         //CHECK IF DATA IS VALID
 
-        var phoneDDDIsInvalid = !ValidatePhoneDDD(vo.PhoneDDD);
+        var phoneDDDIsInvalid = !StringUtils.ValidatePhoneDDD(vo.PhoneDDD);
         if (phoneDDDIsInvalid)
             throw new ArgumentException("Phone DDD is invalid!");
 
-        var phoneNumberIsInvalid = !ValidatePhoneNumber(vo.PhoneNumber);
+        var phoneNumberIsInvalid = !StringUtils.ValidatePhoneNumber(vo.PhoneNumber);
         if (phoneNumberIsInvalid)
             throw new ArgumentException("Phone Number is invalid!");
 
-        var emailIsInvalid = !ValidateEmailAddress(vo.EmailAddress);
+        var emailIsInvalid = !StringUtils.ValidateEmailAddress(vo.EmailAddress);
         if (emailIsInvalid)
             throw new ArgumentException("Email Address is invalid!");
 
@@ -101,44 +96,5 @@ public class ContactService
         var emailAlreadyInUse = Repository.ContactEmailAlreadyExists(vo.EmailAddress, vo.Id);
         if (emailAlreadyInUse)
             throw new ArgumentException("Email already in use!");
-    }
-
-    private static bool ValidatePhoneDDD(string phoneDDD)
-    {
-        var validDDDs = new List<string>()
-        {
-            "11", "12", "13", "14", "15", "16", "17", "18", "19",
-            "21", "22", "24", "27", "28",
-            "31", "32", "33", "34", "35", "37", "38",
-            "41", "42", "43", "44", "45", "46", "47", "48", "49",
-            "51", "53", "54", "55",
-            "61", "62", "64", "63",
-            "65", "66", "67",
-            "68", "69",
-            "71", "73", "74", "75", "77", "79",
-            "81", "82", "83", "84", "85", "86", "87", "88", "89",
-            "91", "92", "93", "94", "95", "96", "97", "98", "99"
-        };
-
-        return validDDDs.Contains(phoneDDD);
-    }
-
-    private static bool ValidatePhoneNumber(string phoneNumber)
-    {
-        string mobilePhonePattern = @"^9\d{8}$";
-        string fixedPhonePattern = @"^[2-5]\d{7}$";
-
-        var isMobileValid = Regex.IsMatch(phoneNumber, mobilePhonePattern, RegexOptions.None, TimeSpan.FromMilliseconds(500));
-        var isFixedValid = Regex.IsMatch(phoneNumber, fixedPhonePattern, RegexOptions.None, TimeSpan.FromMilliseconds(500));
-
-        return isMobileValid || isFixedValid;
-    }
-
-    private static bool ValidateEmailAddress(string emailAddress)
-    {
-        string emailPattern = @"^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$";
-
-        var isEmailValid = Regex.IsMatch(emailAddress, emailPattern, RegexOptions.None, TimeSpan.FromMilliseconds(500));
-        return isEmailValid;
     }
 }

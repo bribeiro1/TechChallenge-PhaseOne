@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 
 namespace Contacts.Infrastructure.Repositories;
-public class RepositoryBase<TEntity> : IRepositoryBase<TEntity>
-    where TEntity : EntityBase
+
+public class RepositoryBase<TEntity> : IRepositoryBase<TEntity> where TEntity : EntityBase
 {
     protected readonly DbContext _context;
     protected readonly DbSet<TEntity> _dbSet;
@@ -32,7 +32,7 @@ public class RepositoryBase<TEntity> : IRepositoryBase<TEntity>
 
     public void Create(TEntity entity)
     {
-        // Generate values for ID and CreationAt
+        // Generate values for Id and CreatedAt
         entity.Id = Guid.NewGuid();
         entity.CreatedAt = DateTime.Now;
 

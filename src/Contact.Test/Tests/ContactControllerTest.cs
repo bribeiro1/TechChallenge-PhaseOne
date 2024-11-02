@@ -1,6 +1,4 @@
 ﻿using Contacts.Api.Controllers;
-using Contacts.Application.Contacts.Repositories;
-using Contacts.Application.Contacts.Services;
 using Contacts.Application.Contexts;
 using Contacts.Domain.Contacts.Services;
 using Contacts.Domain.Contacts.VOs;
@@ -8,7 +6,6 @@ using Contacts.Infrastructure.DI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Contacts.Test.Tests
@@ -136,7 +133,7 @@ namespace Contacts.Test.Tests
             controller.Create(contact);
 
             // Act
-            var result = controller.ListByDDD(PhoneDDD_Valid2);
+            var result = controller.List(PhoneDDD_Valid2);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -155,7 +152,7 @@ namespace Contacts.Test.Tests
             // Arrange
 
             // Act
-            var result = controller.ListByDDD(PhoneDDD_Valid2);
+            var result = controller.List(PhoneDDD_Valid2);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -170,7 +167,7 @@ namespace Contacts.Test.Tests
             var newController = new ContactController(null);
 
             // Act
-            var result = newController.ListByDDD(null);
+            var result = newController.List(null);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
