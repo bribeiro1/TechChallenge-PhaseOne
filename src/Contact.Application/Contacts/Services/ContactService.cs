@@ -47,59 +47,71 @@ public class ContactService
 
     private void EnsureValidation(ContactVO vo)
     {
-        string mensagemErro = string.Empty;
-
-        //CHECK IF REQUIRED DATA IS FILLED
+        string errorMessage = string.Empty;
 
         var nameIsEmpty = string.IsNullOrWhiteSpace(vo.Name);
         if (nameIsEmpty)
-            mensagemErro = "Name shouldn't be empty! \n";
+            errorMessage = "Name shouldn't be empty! \n";
+        else
+        {
+            var nameAlreadyInUse = Repository.ContactNameAlreadyExists(vo.Name, vo.Id);
+            if (nameAlreadyInUse)
+                errorMessage += "Name already in use! \n";
+        }
+
 
         var phoneDDDIsEmpty = string.IsNullOrWhiteSpace(vo.PhoneDDD);
         if (phoneDDDIsEmpty)
-            mensagemErro += "Phone DDD shouldn't be empty! \n";
+            errorMessage += "Phone DDD shouldn't be empty! \n";
+        else
+        {
+            var phoneDDDIsInvalid = !StringUtils.ValidatePhoneDDD(vo.PhoneDDD);
+            if (phoneDDDIsInvalid)
+                errorMessage += "Phone DDD is invalid! \n";
+        }
+
 
         var phoneNumberIsEmpty = string.IsNullOrWhiteSpace(vo.PhoneNumber);
         if (phoneNumberIsEmpty)
-            mensagemErro += "Phone Number shouldn't be empty! \n";
+            errorMessage += "Phone Number shouldn't be empty! \n";
+        else
+        {
+            var phoneNumberContainsOnlyNumbers = vo.PhoneNumber.All(r => char.IsNumber(r));
+            if (!phoneNumberContainsOnlyNumbers)
+                errorMessage += "Phone Number should have only numbers! \n";
+            else
+            {
+                var phoneNumberIsInvalid = !StringUtils.ValidatePhoneNumber(vo.PhoneNumber);
+                if (phoneNumberIsInvalid)
+                    errorMessage += "Phone Number is invalid! \n";
+                else
+                {
+                    var phoneAlreadyInUse = Repository.ContactPhoneAlreadyExists(vo.PhoneDDD, vo.PhoneNumber, vo.Id);
+                    if (phoneAlreadyInUse)
+                        errorMessage += "Phone already in use! \n";
+                }
+            }
+        }
 
-        var phoneNumberContainsOnlyNumbers = vo.PhoneNumber.All(r => char.IsNumber(r));
-        if (!phoneNumberContainsOnlyNumbers)
-            mensagemErro += "Phone Number should have only numbers! \n";
 
         var emailIsEmpty = string.IsNullOrWhiteSpace(vo.EmailAddress);
         if (emailIsEmpty)
-            mensagemErro += "Email Address shouldn't be empty! \n";
+            errorMessage += "Email Address shouldn't be empty! \n";
+        else
+        {
+            var emailIsInvalid = !StringUtils.ValidateEmailAddress(vo.EmailAddress);
+            if (emailIsInvalid)
+                errorMessage += "Email Address is invalid! \n";
+            else
+            {
+                var emailAlreadyInUse = Repository.ContactEmailAlreadyExists(vo.EmailAddress, vo.Id);
+                if (emailAlreadyInUse)
+                    errorMessage += "Email already in use! \n";
+            }
+        }
 
-        //CHECK IF DATA IS VALID
 
-        var phoneDDDIsInvalid = !StringUtils.ValidatePhoneDDD(vo.PhoneDDD);
-        if (phoneDDDIsInvalid)
-            mensagemErro += "Phone DDD is invalid! \n";
-
-        var phoneNumberIsInvalid = !StringUtils.ValidatePhoneNumber(vo.PhoneNumber);
-        if (phoneNumberIsInvalid)
-            mensagemErro += "Phone Number is invalid! \n";
-
-        var emailIsInvalid = !StringUtils.ValidateEmailAddress(vo.EmailAddress);
-        if (emailIsInvalid)
-            mensagemErro += "Email Address is invalid! \n";
-
-        //CHECK IF DATA IS ALREADY IN USE
-
-        var nameAlreadyInUse = Repository.ContactNameAlreadyExists(vo.Name, vo.Id);
-        if (nameAlreadyInUse)
-            mensagemErro += "Name already in use! \n";
-
-        var phoneAlreadyInUse = Repository.ContactPhoneAlreadyExists(vo.PhoneDDD, vo.PhoneNumber, vo.Id);
-        if (phoneAlreadyInUse)
-            mensagemErro += "Phone already in use! \n";
-
-        var emailAlreadyInUse = Repository.ContactEmailAlreadyExists(vo.EmailAddress, vo.Id);
-        if (emailAlreadyInUse)
-            mensagemErro += "Email already in use! \n";
-
-        if (!string.IsNullOrEmpty(mensagemErro))
-            throw new ArgumentException(mensagemErro);
+        if (!string.IsNullOrEmpty(errorMessage))
+            throw new ArgumentException(errorMessage);
     }
 }

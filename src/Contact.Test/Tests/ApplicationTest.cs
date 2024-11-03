@@ -3,26 +3,26 @@
     public class ApplicationTest
     {
         [Fact]
-        public void Run_ShouldRunFine_WhenIsDevelopmentEnvironment()
+        public async Task Run_ShouldRunFine_WhenIsDevelopmentEnvironment()
         {
             // Arrange
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 
             // Act
-            Api.Program.Main([]);
+            await Api.Application.Run([]);
 
             // Assert
             Assert.True(true);
         }
 
         [Fact]
-        public void Run_ShouldRunFine_WhenIsProductionEnvironment()
+        public async Task Run_ShouldRunFine_WhenIsProductionEnvironment()
         {
             // Arrange
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
 
             // Act
-            Api.Program.Main([]);
+            await Api.Application.Run([]);
 
             // Assert
             Assert.True(true);
