@@ -2,8 +2,8 @@ namespace Contacts.Api;
 
 public static class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        Application.Run(args).Wait();
+        await Application.GetWebApplication(args).RunAsync();
     }
 }

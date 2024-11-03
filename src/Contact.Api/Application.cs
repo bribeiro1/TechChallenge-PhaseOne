@@ -6,7 +6,7 @@ namespace Contacts.Api
 {
     public static class Application
     {
-        public static async Task Run(string[] args)
+        public static WebApplication GetWebApplication(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +47,7 @@ namespace Contacts.Api
 
             app.MapControllers();
 
-            await app.RunAsync();
+            return app;
         }
     }
 }
