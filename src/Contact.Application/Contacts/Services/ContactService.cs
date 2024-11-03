@@ -47,71 +47,41 @@ public class ContactService
 
     private void EnsureValidation(ContactVO vo)
     {
-        string errorMessage = string.Empty;
+        var errorList = new List<string>();
 
         var nameIsEmpty = string.IsNullOrWhiteSpace(vo.Name);
         if (nameIsEmpty)
-            errorMessage = "Name shouldn't be empty! \n";
-        else
-        {
-            var nameAlreadyInUse = Repository.ContactNameAlreadyExists(vo.Name, vo.Id);
-            if (nameAlreadyInUse)
-                errorMessage += "Name already in use! \n";
-        }
+            errorList.Add("Name shouldn't be empty!");
 
+        var phoneDDDIsInvalid = !StringUtils.ValidatePhoneDDD(vo.PhoneDDD);
+        if (phoneDDDIsInvalid)
+            errorList.Add("Phone DDD is invalid!");
 
-        var phoneDDDIsEmpty = string.IsNullOrWhiteSpace(vo.PhoneDDD);
-        if (phoneDDDIsEmpty)
-            errorMessage += "Phone DDD shouldn't be empty! \n";
-        else
-        {
-            var phoneDDDIsInvalid = !StringUtils.ValidatePhoneDDD(vo.PhoneDDD);
-            if (phoneDDDIsInvalid)
-                errorMessage += "Phone DDD is invalid! \n";
-        }
+        var phoneNumberIsInvalid = !vo.PhoneNumber.All(char.IsNumber);
+        if (phoneNumberIsInvalid)
+            errorList.Add("Phone Number should have only numbers!");
 
+        phoneNumberIsInvalid = !phoneNumberIsInvalid && !StringUtils.ValidatePhoneNumber(vo.PhoneNumber);
+        if (phoneNumberIsInvalid)
+            errorList.Add("Phone Number is invalid!");
 
-        var phoneNumberIsEmpty = string.IsNullOrWhiteSpace(vo.PhoneNumber);
-        if (phoneNumberIsEmpty)
-            errorMessage += "Phone Number shouldn't be empty! \n";
-        else
-        {
-            var phoneNumberContainsOnlyNumbers = vo.PhoneNumber.All(r => char.IsNumber(r));
-            if (!phoneNumberContainsOnlyNumbers)
-                errorMessage += "Phone Number should have only numbers! \n";
-            else
-            {
-                var phoneNumberIsInvalid = !StringUtils.ValidatePhoneNumber(vo.PhoneNumber);
-                if (phoneNumberIsInvalid)
-                    errorMessage += "Phone Number is invalid! \n";
-                else
-                {
-                    var phoneAlreadyInUse = Repository.ContactPhoneAlreadyExists(vo.PhoneDDD, vo.PhoneNumber, vo.Id);
-                    if (phoneAlreadyInUse)
-                        errorMessage += "Phone already in use! \n";
-                }
-            }
-        }
+        var emailIsInvalid = !StringUtils.ValidateEmailAddress(vo.EmailAddress);
+        if (emailIsInvalid)
+            errorList.Add("Email Address is invalid!");
 
+        var nameAlreadyInUse = !nameIsEmpty && Repository.ContactNameAlreadyExists(vo.Name, vo.Id);
+        if (nameAlreadyInUse)
+            errorList.Add("Name already in use!");
 
-        var emailIsEmpty = string.IsNullOrWhiteSpace(vo.EmailAddress);
-        if (emailIsEmpty)
-            errorMessage += "Email Address shouldn't be empty! \n";
-        else
-        {
-            var emailIsInvalid = !StringUtils.ValidateEmailAddress(vo.EmailAddress);
-            if (emailIsInvalid)
-                errorMessage += "Email Address is invalid! \n";
-            else
-            {
-                var emailAlreadyInUse = Repository.ContactEmailAlreadyExists(vo.EmailAddress, vo.Id);
-                if (emailAlreadyInUse)
-                    errorMessage += "Email already in use! \n";
-            }
-        }
+        var phoneAlreadyInUse = !phoneDDDIsInvalid && !phoneNumberIsInvalid && Repository.ContactPhoneAlreadyExists(vo.PhoneDDD, vo.PhoneNumber, vo.Id);
+        if (phoneAlreadyInUse)
+            errorList.Add("Phone already in use!");
 
+        var emailAlreadyInUse = !emailIsInvalid && Repository.ContactEmailAlreadyExists(vo.EmailAddress, vo.Id);
+        if (emailAlreadyInUse)
+            errorList.Add("Email already in use!");
 
-        if (!string.IsNullOrEmpty(errorMessage))
-            throw new ArgumentException(errorMessage);
+        if (errorList.Count > 0)
+            throw new ArgumentException(string.Join("\n", errorList));
     }
 }

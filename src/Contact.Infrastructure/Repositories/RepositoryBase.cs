@@ -53,6 +53,10 @@ public class RepositoryBase<TEntity> : IRepositoryBase<TEntity> where TEntity : 
     public void Delete(Guid id)
     {
         var entity = GetById(id, tracking: true);
+        
+        if (entity == null)
+            throw new ArgumentException($"Id not found!");
+
         _dbSet.Remove(entity);
         _context.SaveChanges();
     }
