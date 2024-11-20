@@ -2,7 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Contacts.Domain.Contacts.Models;
 
-namespace Contacts.Application.Contacts.Mappings;
+namespace Contacts.Infrastructure.Mappings;
+
 public class ContactMapping : IEntityTypeConfiguration<Contact>
 {
     public void Configure(EntityTypeBuilder<Contact> builder)

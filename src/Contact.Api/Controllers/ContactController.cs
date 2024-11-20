@@ -1,5 +1,5 @@
-﻿using Contacts.Domain.Contacts.Services;
-using Contacts.Domain.Contacts.VOs;
+﻿using Contacts.Application.Services.Contacts;
+using Contacts.Domain.Contacts.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Contacts.Api.Controllers
@@ -16,7 +16,7 @@ namespace Contacts.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IList<ContactVO>> List([FromQuery] string ddd = null)
+        public ActionResult<IList<ContactDto>> List([FromQuery] string ddd = null)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace Contacts.Api.Controllers
         }
 
         [HttpPost()]
-        public IActionResult Create(ContactVO contact)
+        public IActionResult Create(ContactDto contact)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace Contacts.Api.Controllers
         }
 
         [HttpPut()]
-        public IActionResult Update(ContactVO contact)
+        public IActionResult Update(ContactDto contact)
         {
             try
             {

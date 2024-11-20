@@ -1,4 +1,5 @@
-﻿using Contacts.Application.Contexts;
+﻿using Contacts.Application.DI;
+using Contacts.Infrastructure.Contexts;
 using Contacts.Infrastructure.DI;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,8 @@ namespace Contacts.Api
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddAutoRegister<AppDbContext>();
+            builder.Services.AddInfrastructureDI();
+            builder.Services.AddApplicationDI();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

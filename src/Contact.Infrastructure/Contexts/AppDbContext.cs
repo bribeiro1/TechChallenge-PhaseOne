@@ -1,7 +1,8 @@
-﻿using Contacts.Application.Contacts.Mappings;
+﻿using Contacts.Infrastructure.Mappings;
 using Microsoft.EntityFrameworkCore;
 
-namespace Contacts.Application.Contexts;
+namespace Contacts.Infrastructure.Contexts;
+
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)

@@ -1,4 +1,4 @@
-﻿namespace Contacts.Infrastructure.Models;
+﻿namespace Contacts.Domain.Common;
 
 public abstract class EntityBase
 {

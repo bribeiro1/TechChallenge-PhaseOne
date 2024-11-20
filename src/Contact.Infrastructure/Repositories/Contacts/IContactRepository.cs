@@ -1,7 +1,8 @@
 ﻿using Contacts.Domain.Contacts.Models;
-using Contacts.Infrastructure.Repositories;
+using Contacts.Infrastructure.Repositories.Common;
 
-namespace Contacts.Domain.Contacts.Repositories;
+namespace Contacts.Infrastructure.Repositories.Contacts;
+
 public interface IContactRepository : IRepositoryBase<Contact>
 {
     bool ContactNameAlreadyExists(string contactName, Guid ignoreGuid = default);

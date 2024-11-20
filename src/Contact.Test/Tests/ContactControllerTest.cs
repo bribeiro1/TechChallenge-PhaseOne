@@ -1,7 +1,8 @@
 ﻿using Contacts.Api.Controllers;
-using Contacts.Application.Contexts;
-using Contacts.Domain.Contacts.Services;
-using Contacts.Domain.Contacts.VOs;
+using Contacts.Application.DI;
+using Contacts.Application.Services.Contacts;
+using Contacts.Domain.Contacts.Dto;
+using Contacts.Infrastructure.Contexts;
 using Contacts.Infrastructure.DI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -52,7 +53,8 @@ namespace Contacts.Test.Tests
             builder.Services.AddSingleton<DbInitializer>();
             builder.Services.AddDbContext<AppDbContext>(options =>
                  options.UseSqlite("Filename=:memory:"));
-            builder.Services.AddAutoRegister<AppDbContext>();
+            builder.Services.AddInfrastructureDI();
+            builder.Services.AddApplicationDI();
             builder.Services.AddControllers();
 
             app = builder.Build();
@@ -80,7 +82,7 @@ namespace Contacts.Test.Tests
         public void List_ShouldReturnAllContacts_WhenExists()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             // Act
@@ -88,7 +90,7 @@ namespace Contacts.Test.Tests
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var contacts = Assert.IsAssignableFrom<IList<ContactVO>>(okResult.Value);
+            var contacts = Assert.IsAssignableFrom<IList<ContactDto>>(okResult.Value);
 
             Assert.Single(contacts);
             Assert.Equal(Name_Valid1, contacts[0].Name);
@@ -107,7 +109,7 @@ namespace Contacts.Test.Tests
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var contacts = Assert.IsAssignableFrom<IList<ContactVO>>(okResult.Value);
+            var contacts = Assert.IsAssignableFrom<IList<ContactDto>>(okResult.Value);
 
             Assert.Empty(contacts);
         }
@@ -129,7 +131,7 @@ namespace Contacts.Test.Tests
         public void ListByDDD_ShouldReturnCorrespondingContacts_WhenExists()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid2, PhoneDDD = PhoneDDD_Valid2, PhoneNumber = PhoneNumber_Valid9Digits1, EmailAddress = EmailAddress_Valid2 };
+            var contact = new ContactDto { Name = Name_Valid2, PhoneDDD = PhoneDDD_Valid2, PhoneNumber = PhoneNumber_Valid9Digits1, EmailAddress = EmailAddress_Valid2 };
             controller.Create(contact);
 
             // Act
@@ -137,7 +139,7 @@ namespace Contacts.Test.Tests
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var contacts = Assert.IsAssignableFrom<IList<ContactVO>>(okResult.Value);
+            var contacts = Assert.IsAssignableFrom<IList<ContactDto>>(okResult.Value);
 
             Assert.Single(contacts);
             Assert.Equal(Name_Valid2, contacts[0].Name);
@@ -156,7 +158,7 @@ namespace Contacts.Test.Tests
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var contacts = Assert.IsAssignableFrom<IList<ContactVO>>(okResult.Value);
+            var contacts = Assert.IsAssignableFrom<IList<ContactDto>>(okResult.Value);
             Assert.Empty(contacts);
         }
 
@@ -177,7 +179,7 @@ namespace Contacts.Test.Tests
         public void Create_ShouldCreateAContact_WhenValid()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
 
             // Act
             var result = controller.Create(contact);
@@ -190,7 +192,7 @@ namespace Contacts.Test.Tests
         public void Create_ShouldThrowAnException_WhenIdIsSet()
         {
             // Arrange
-            var contact = new ContactVO { Id = Guid.NewGuid(), Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Id = Guid.NewGuid(), Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
 
             // Act
             var result = controller.Create(contact);
@@ -204,7 +206,7 @@ namespace Contacts.Test.Tests
         public void Create_ShouldThrowAnException_WhenNameIsEmpty()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Empty, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Empty, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
 
             // Act
             var result = controller.Create(contact);
@@ -218,7 +220,7 @@ namespace Contacts.Test.Tests
         public void Create_ShouldThrowAnException_WhenPhoneDDDIsEmpty()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Empty, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Empty, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
 
             // Act
             var result = controller.Create(contact);
@@ -232,7 +234,7 @@ namespace Contacts.Test.Tests
         public void Create_ShouldThrowAnException_WhenPhoneNumberIsEmpty()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Empty, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Empty, EmailAddress = EmailAddress_Valid1 };
 
             // Act
             var result = controller.Create(contact);
@@ -246,7 +248,7 @@ namespace Contacts.Test.Tests
         public void Create_ShouldThrowAnException_WhenEmailAddressIsEmpty()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Empty };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Empty };
 
             // Act
             var result = controller.Create(contact);
@@ -260,7 +262,7 @@ namespace Contacts.Test.Tests
         public void Create_ShouldThrowAnException_WhenPhoneDDDIsInvalid()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Invalid, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Invalid, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
 
             // Act
             var result = controller.Create(contact);
@@ -274,7 +276,7 @@ namespace Contacts.Test.Tests
         public void Create_ShouldThrowAnException_WhenPhoneNumberContainsAnyNonAlphanumericCharacters()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_InvalidWithSimbols, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_InvalidWithSimbols, EmailAddress = EmailAddress_Valid1 };
 
             // Act
             var result = controller.Create(contact);
@@ -288,7 +290,7 @@ namespace Contacts.Test.Tests
         public void Create_ShouldThrowAnException_WhenPhoneNumberIsInvalid()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Invalid8Digits, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Invalid8Digits, EmailAddress = EmailAddress_Valid1 };
 
             // Act
             var result = controller.Create(contact);
@@ -302,7 +304,7 @@ namespace Contacts.Test.Tests
         public void Create_ShouldThrowAnException_WhenEmailAddressIsInvalid()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Invalid };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Invalid };
 
             // Act
             var result = controller.Create(contact);
@@ -316,10 +318,10 @@ namespace Contacts.Test.Tests
         public void Create_ShouldThrowAnException_WhenNameAlreadyInUse()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
-            var newcontact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid2, PhoneNumber = PhoneNumber_Valid8Digits2, EmailAddress = EmailAddress_Valid2 };
+            var newcontact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid2, PhoneNumber = PhoneNumber_Valid8Digits2, EmailAddress = EmailAddress_Valid2 };
 
             // HERE
 
@@ -336,10 +338,10 @@ namespace Contacts.Test.Tests
         public void Create_ShouldThrowAnException_WhenPhoneAlreadyInUse()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
-            var newcontact = new ContactVO { Name = Name_Valid2, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid2 };
+            var newcontact = new ContactDto { Name = Name_Valid2, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid2 };
 
             // Act
             var result = controller.Create(newcontact);
@@ -353,10 +355,10 @@ namespace Contacts.Test.Tests
         public void Create_ShouldThrowAnException_WhenEmailAlreadyInUse()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
-            var newcontact = new ContactVO { Name = Name_Valid2, PhoneDDD = PhoneDDD_Valid2, PhoneNumber = PhoneNumber_Valid8Digits2, EmailAddress = EmailAddress_Valid1 };
+            var newcontact = new ContactDto { Name = Name_Valid2, PhoneDDD = PhoneDDD_Valid2, PhoneNumber = PhoneNumber_Valid8Digits2, EmailAddress = EmailAddress_Valid1 };
 
             // Act
             var result = controller.Create(newcontact);
@@ -370,12 +372,12 @@ namespace Contacts.Test.Tests
         public void Update_ShouldUpdateAContact_WhenValid()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
             existingContact.Name = Name_Valid2;
@@ -391,12 +393,12 @@ namespace Contacts.Test.Tests
         public void Update_ShouldThrowAnException_WhenNothingChanged()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
 
@@ -412,7 +414,7 @@ namespace Contacts.Test.Tests
         public void Update_ShouldThrowAnException_WhenIdDoesntExists()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
 
             // Act
             var result = controller.Update(contact);
@@ -426,12 +428,12 @@ namespace Contacts.Test.Tests
         public void Update_ShouldThrowAnException_WhenNameIsEmpty()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
             existingContact.Name = Name_Empty;
@@ -448,12 +450,12 @@ namespace Contacts.Test.Tests
         public void Update_ShouldThrowAnException_WhenPhoneDDDIsEmpty()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
             existingContact.PhoneDDD = PhoneDDD_Empty;
@@ -470,12 +472,12 @@ namespace Contacts.Test.Tests
         public void Update_ShouldThrowAnException_WhenPhoneNumberIsEmpty()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
             existingContact.PhoneNumber = PhoneNumber_Empty;
@@ -492,12 +494,12 @@ namespace Contacts.Test.Tests
         public void Update_ShouldThrowAnException_WhenEmailAddressIsEmpty()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
             existingContact.EmailAddress = EmailAddress_Empty;
@@ -514,12 +516,12 @@ namespace Contacts.Test.Tests
         public void Update_ShouldThrowAnException_WhenPhoneDDDIsInvalid()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
             existingContact.PhoneDDD = PhoneDDD_Invalid;
@@ -536,12 +538,12 @@ namespace Contacts.Test.Tests
         public void Update_ShouldThrowAnException_WhenPhoneNumberContainsAnyNonAlphanumericCharacters()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
             existingContact.PhoneNumber = PhoneNumber_InvalidWithSimbols;
@@ -558,12 +560,12 @@ namespace Contacts.Test.Tests
         public void Update_ShouldThrowAnException_WhenPhoneNumberIsInvalid()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
             existingContact.PhoneNumber = PhoneNumber_Invalid9Digits;
@@ -580,16 +582,16 @@ namespace Contacts.Test.Tests
         public void Update_ShouldThrowAnException_WhenNameAlreadyInUse()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
 
-            var anotherContact = new ContactVO { Name = Name_Valid2, PhoneDDD = PhoneDDD_Valid2, PhoneNumber = PhoneNumber_Valid8Digits2, EmailAddress = EmailAddress_Valid2 };
+            var anotherContact = new ContactDto { Name = Name_Valid2, PhoneDDD = PhoneDDD_Valid2, PhoneNumber = PhoneNumber_Valid8Digits2, EmailAddress = EmailAddress_Valid2 };
             controller.Create(anotherContact);
 
             existingContact.Name = Name_Valid2;
@@ -606,16 +608,16 @@ namespace Contacts.Test.Tests
         public void Update_ShouldThrowAnException_WhenPhoneAlreadyInUse()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
 
-            var anotherContact = new ContactVO { Name = Name_Valid2, PhoneDDD = PhoneDDD_Valid2, PhoneNumber = PhoneNumber_Valid8Digits2, EmailAddress = EmailAddress_Valid2 };
+            var anotherContact = new ContactDto { Name = Name_Valid2, PhoneDDD = PhoneDDD_Valid2, PhoneNumber = PhoneNumber_Valid8Digits2, EmailAddress = EmailAddress_Valid2 };
             controller.Create(anotherContact);
 
             existingContact.PhoneDDD = PhoneDDD_Valid2;
@@ -633,16 +635,16 @@ namespace Contacts.Test.Tests
         public void Update_ShouldThrowAnException_WhenEmailAlreadyInUse()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
 
-            var anotherContact = new ContactVO { Name = Name_Valid2, PhoneDDD = PhoneDDD_Valid2, PhoneNumber = PhoneNumber_Valid8Digits2, EmailAddress = EmailAddress_Valid2 };
+            var anotherContact = new ContactDto { Name = Name_Valid2, PhoneDDD = PhoneDDD_Valid2, PhoneNumber = PhoneNumber_Valid8Digits2, EmailAddress = EmailAddress_Valid2 };
             controller.Create(anotherContact);
 
             existingContact.EmailAddress = EmailAddress_Valid2;
@@ -659,12 +661,12 @@ namespace Contacts.Test.Tests
         public void Delete_ShouldDeleteAContact_WhenValid()
         {
             // Arrange
-            var contact = new ContactVO { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
+            var contact = new ContactDto { Name = Name_Valid1, PhoneDDD = PhoneDDD_Valid1, PhoneNumber = PhoneNumber_Valid8Digits1, EmailAddress = EmailAddress_Valid1 };
             controller.Create(contact);
 
             var existingResult = controller.List();
             var existingOkResult = Assert.IsType<OkObjectResult>(existingResult.Result);
-            var existingContacts = Assert.IsAssignableFrom<IList<ContactVO>>(existingOkResult.Value);
+            var existingContacts = Assert.IsAssignableFrom<IList<ContactDto>>(existingOkResult.Value);
 
             var existingContact = existingContacts[0];
 

@@ -1,7 +1,7 @@
-﻿using Contacts.Infrastructure.Models;
+﻿using Contacts.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace Contacts.Infrastructure.Repositories;
+namespace Contacts.Infrastructure.Repositories.Common;
 
 public class RepositoryBase<TEntity> : IRepositoryBase<TEntity> where TEntity : EntityBase
 {
@@ -53,7 +53,7 @@ public class RepositoryBase<TEntity> : IRepositoryBase<TEntity> where TEntity : 
     public void Delete(Guid id)
     {
         var entity = GetById(id, tracking: true);
-        
+
         if (entity == null)
             throw new ArgumentException($"Id not found!");
 

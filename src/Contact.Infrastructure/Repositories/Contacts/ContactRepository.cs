@@ -1,9 +1,9 @@
-﻿using Contacts.Application.Contexts;
-using Contacts.Domain.Contacts.Models;
-using Contacts.Domain.Contacts.Repositories;
-using Contacts.Infrastructure.Repositories;
+﻿using Contacts.Domain.Contacts.Models;
+using Contacts.Infrastructure.Contexts;
+using Contacts.Infrastructure.Repositories.Common;
 
-namespace Contacts.Application.Contacts.Repositories;
+namespace Contacts.Infrastructure.Repositories.Contacts;
+
 public class ContactRepository : RepositoryBase<Contact>, IContactRepository
 {
     public ContactRepository(AppDbContext context)

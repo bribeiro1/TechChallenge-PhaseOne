@@ -1,5 +1,5 @@
-﻿using Contacts.Infrastructure.Models;
-using Contacts.Infrastructure.Repositories;
+﻿using Contacts.Domain.Common;
+using Contacts.Infrastructure.Repositories.Common;
 
 namespace Contacts.Infrastructure.Services;
 

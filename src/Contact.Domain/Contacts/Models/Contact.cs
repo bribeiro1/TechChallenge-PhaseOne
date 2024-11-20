@@ -1,6 +1,7 @@
-﻿using Contacts.Infrastructure.Models;
+﻿using Contacts.Domain.Common;
 
 namespace Contacts.Domain.Contacts.Models;
+
 public class Contact : EntityBase
 {
     public string Name { get; set; }
